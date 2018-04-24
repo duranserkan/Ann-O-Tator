@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Annotator"
+             x:Class="Annotator.MainPage">
+
+	<ContentPage.Content>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="35" />
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition></ColumnDefinition>
+				<ColumnDefinition></ColumnDefinition>
+				<ColumnDefinition></ColumnDefinition>
+			</Grid.ColumnDefinitions>
+			<Button x:Name="BrowserBackButton" Margin="0"  Text="Back" Font="Micro"  Grid.Row="0"  Grid.Column="0" Clicked="BrowserBackButton_OnClicked"></Button>
+			<Button x:Name="BrowserForwardButton" Margin="0"  Text="Forward" Font="Micro"  Grid.Row="0"  Grid.Column="1" Clicked="BrowserForwardButton_OnClicked"></Button>
+			<Button x:Name="BrowserGoButton" Margin="0" Font="Micro" Text="Go"   Grid.Row="0"  Grid.Column="2" Clicked="BrowserGoButton_OnClicked"></Button>
+			<Entry x:Name="BrowserAddressBar"  Margin="0" FontSize="9" HorizontalOptions="FillAndExpand" Placeholder="Address Bar" Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="3"></Entry>
+			<WebView x:Name="BrowserWebView" Grid.Row="2"  Grid.Column="0" Grid.ColumnSpan="3" Navigating="BrowserWebView_OnNavigating" Navigated="BrowserWebView_OnNavigated"></WebView>
+		</Grid>
+	</ContentPage.Content>
+</ContentPage>
