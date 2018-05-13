@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
-using Annotator.Application.Configuration;
-using Annotator.API.ActionResults;
+﻿using Annotator.API.ActionResults;
 using Annotator.API.Configuration;
 using Annotator.Domain.Models.Service;
 using Annotator.Domain.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Annotator.API.Controllers
 {
@@ -33,44 +27,93 @@ namespace Annotator.API.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> Get()
+        public async Task<IActionResult> Get()
         {
-            var annotations = await _textAnnotationService.GetAsync(getReferer());
+            var result = await _textAnnotationService.GetAnnotationsAsync(getReferer());
 
-            return Json(annotations);
+            if (result.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return Json(result.Data);
+            }
+
+            if (result.HasError)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return new StatusCodeResult((int) result.HttpStatusCode);
         }
 
         [HttpGet("{id}")]
-        public async Task<JsonResult> Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            var annotation = await _textAnnotationService.GetAsync(id, getReferer());
+            var result = await _textAnnotationService.GetAsync(id);
 
-            return Json(annotation);
+            if (result.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return Json(result.Data);
+            }
+
+            if (result.HasError)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return new StatusCodeResult((int) result.HttpStatusCode);
         }
 
         [HttpPost]
-        public async Task<SeeOtherResult> Post([FromBody]TextAnnotationDTO annotation)
+        public async Task<IActionResult> Post([FromBody]TextAnnotationDTO annotation)
         {
-            var url = await _textAnnotationService.CreateAsync(annotation, getReferer());
+            var result = await _textAnnotationService.CreateAsync(annotation);
 
-            return new SeeOtherResult(url);
+            if (result.HttpStatusCode == HttpStatusCode.Created)
+            {
+                return new SeeOtherResult(result.Data);
+            }
+
+            if (result.HasError)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return new StatusCodeResult((int) result.HttpStatusCode);
         }
 
         [HttpPut("{id}")]
-        public async Task<SeeOtherResult> Put(string id, [FromBody]TextAnnotationDTO annotation)
+        public async Task<IActionResult> Put(string id, [FromBody]TextAnnotationDTO annotation)
         {
-            var url= await _textAnnotationService.UpdateAsync(annotation, id, getReferer());
+            var result = await _textAnnotationService.UpdateAsync(annotation);
+            if (result.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return new SeeOtherResult(result.Data);
+            }
 
-            return new SeeOtherResult(url);
+            if (result.HasError)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return new StatusCodeResult((int) result.HttpStatusCode);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public async Task<NoContentResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            await _textAnnotationService.DeleteAsync(id, getReferer());
+            var result = await _textAnnotationService.DeleteAsync(id);
 
-            return NoContent();
+            if (result.HttpStatusCode == HttpStatusCode.NoContent)
+            {
+                return NoContent();
+            }
+
+            if (result.HasError)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return new StatusCodeResult((int) result.HttpStatusCode);
         }
 
         private string getReferer()

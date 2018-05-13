@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Annotator.Common.ExtensionMethods;
+﻿using Annotator.Common.ExtensionMethods;
+using System;
 
 namespace Annotator.Common
 {
