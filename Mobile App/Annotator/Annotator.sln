@@ -5,7 +5,17 @@ VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annotator.Android", "Annotator\Annotator.Android\Annotator.Android.csproj", "{56459339-2CA8-4028-9125-99820897C48E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annotator", "Annotator\Annotator\Annotator.csproj", "{358B38B0-AEDB-4C06-9026-4FA17D264848}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Annotator", "Annotator\Annotator\Annotator.csproj", "{358B38B0-AEDB-4C06-9026-4FA17D264848}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Annotator.API", "Annotator.API\Annotator.API.csproj", "{C551FC0B-9760-436B-8192-1D8DB3A7C02F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Annotator.Infrastructure", "Annotator.Infrastructure\Annotator.Infrastructure.csproj", "{31D850F1-B06B-4D0E-99C5-FD4B0C0BA8C1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Annotator.Service", "Annotator.Service\Annotator.Service.csproj", "{28E15D97-C81D-4769-9DC5-9CF5A649C0EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annotator.Domain", "Annotator.Domain\Annotator.Domain.csproj", "{58CE1730-D85E-42AF-9EED-7A41978DBB48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annotator.Common", "Annotator.Common\Annotator.Common.csproj", "{BD919770-309B-456A-A39F-AC739DA582B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +33,26 @@ Global
 		{358B38B0-AEDB-4C06-9026-4FA17D264848}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{358B38B0-AEDB-4C06-9026-4FA17D264848}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{358B38B0-AEDB-4C06-9026-4FA17D264848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C551FC0B-9760-436B-8192-1D8DB3A7C02F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C551FC0B-9760-436B-8192-1D8DB3A7C02F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C551FC0B-9760-436B-8192-1D8DB3A7C02F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C551FC0B-9760-436B-8192-1D8DB3A7C02F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31D850F1-B06B-4D0E-99C5-FD4B0C0BA8C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31D850F1-B06B-4D0E-99C5-FD4B0C0BA8C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31D850F1-B06B-4D0E-99C5-FD4B0C0BA8C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31D850F1-B06B-4D0E-99C5-FD4B0C0BA8C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28E15D97-C81D-4769-9DC5-9CF5A649C0EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28E15D97-C81D-4769-9DC5-9CF5A649C0EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28E15D97-C81D-4769-9DC5-9CF5A649C0EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28E15D97-C81D-4769-9DC5-9CF5A649C0EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58CE1730-D85E-42AF-9EED-7A41978DBB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58CE1730-D85E-42AF-9EED-7A41978DBB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58CE1730-D85E-42AF-9EED-7A41978DBB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58CE1730-D85E-42AF-9EED-7A41978DBB48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD919770-309B-456A-A39F-AC739DA582B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD919770-309B-456A-A39F-AC739DA582B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD919770-309B-456A-A39F-AC739DA582B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD919770-309B-456A-A39F-AC739DA582B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

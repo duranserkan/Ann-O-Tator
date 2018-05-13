@@ -50,7 +50,13 @@ namespace Annotator
         {
             BrowserBackButton.IsEnabled = BrowserWebView.CanGoBack;
             BrowserForwardButton.IsEnabled = BrowserWebView.CanGoForward;
-            BrowserWebView.Eval("alert('Hello Annotator');");
+            var script =
+                "var annotatorApihead = document.getElementsByTagName('head')[0];" + Environment.NewLine +
+                "var annotatorApiScript = document.createElement('script');" + Environment.NewLine +
+                "annotatorApiScript.src = 'http://localhost:54520/js/annotator-api.js';" + Environment.NewLine +
+                "annotatorApiScript.type = 'text/javascript';" + Environment.NewLine +
+                "annotatorApihead.appendChild(annotatorApiScript);";
+            BrowserWebView.Eval(script);
         }
     }
 }
