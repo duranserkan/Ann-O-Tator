@@ -19,6 +19,11 @@ namespace Annotator.API
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                //Add additional configuration file if necessary
+                //.ConfigureAppConfiguration((builderContext, config) =>
+                //{
+                //    config.AddXmlFile("appsettings.xml", optional: true, reloadOnChange: true);
+                //})
                 .UseStartup<Startup>()
                 .Build();
     }

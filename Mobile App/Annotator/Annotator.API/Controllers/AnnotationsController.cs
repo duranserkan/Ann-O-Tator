@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using Annotator.Application.Configuration;
+using Annotator.API.ActionResults;
+using Annotator.API.Configuration;
+using Annotator.Domain.Models.Service;
+using Annotator.Domain.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,54 +19,64 @@ namespace Annotator.API.Controllers
     [EnableCors("LetThemIn")]
     public class AnnotationsController : Controller
     {
-        [HttpGet("/api")]
-        public string Root()
-        {
-            string referer = getReferer();
-            string ipString = HttpContext.Connection.RemoteIpAddress.ToString();
+        private readonly ITextAnnotationService _textAnnotationService;
 
-            return "hello world";
+        public AnnotationsController(ITextAnnotationService textAnnotationService)
+        {
+            _textAnnotationService = textAnnotationService;
+        }
+
+        [HttpGet("/api")]
+        public JsonResult Root([FromServices] AnnotationApiVersion annotationApiVersion)
+        {
+            return Json(annotationApiVersion);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<string>> Get()
+        public async Task<JsonResult> Get()
         {
-            string referer = getReferer();
+            var annotations = await _textAnnotationService.GetAsync(getReferer());
 
-            return new string[] { "value1", "value2" };
+            return Json(annotations);
         }
 
         [HttpGet("{id}")]
-        public async Task<string> Get(string id)
+        public async Task<JsonResult> Get(string id)
         {
-            string referer = getReferer();
+            var annotation = await _textAnnotationService.GetAsync(id, getReferer());
 
-            return "value";
+            return Json(annotation);
         }
 
         [HttpPost]
-        public async void Post([FromBody]string value)
+        public async Task<SeeOtherResult> Post([FromBody]TextAnnotationDTO annotation)
         {
-            string referer = getReferer();
+            var url = await _textAnnotationService.CreateAsync(annotation, getReferer());
+
+            return new SeeOtherResult(url);
         }
 
         [HttpPut("{id}")]
-        public async void Put(string id, [FromBody]string value)
+        public async Task<SeeOtherResult> Put(string id, [FromBody]TextAnnotationDTO annotation)
         {
-            string referer = getReferer();
+            var url= await _textAnnotationService.UpdateAsync(annotation, id, getReferer());
+
+            return new SeeOtherResult(url);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public async void Delete(string id)
+        public async Task<NoContentResult> Delete(string id)
         {
-            string referer = getReferer();
-        }
+            await _textAnnotationService.DeleteAsync(id, getReferer());
 
+            return NoContent();
+        }
 
         private string getReferer()
         {
             return Request.Headers["Referer"].ToString();
         }
+
     }
 }

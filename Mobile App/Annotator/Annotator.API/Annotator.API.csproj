@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <UserSecretsId>dabb4e2e-54bd-4812-91ef-fad3ff8da72c</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,10 +19,19 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
+    <PackageReference Include="SimpleInjector" Version="4.2.2" />
+    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Annotator.Application\Annotator.Application.csproj" />
+    <ProjectReference Include="..\Annotator.Common\Annotator.Common.csproj" />
+    <ProjectReference Include="..\Annotator.Domain\Annotator.Domain.csproj" />
+    <ProjectReference Include="..\Annotator.Infrastructure\Annotator.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
