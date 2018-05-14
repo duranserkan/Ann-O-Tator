@@ -5,8 +5,12 @@ using Flurl;
 using Flurl.Http;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Annotator.Common.ExtensionMethods;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Annotator.Application.Services
 {
@@ -29,7 +33,7 @@ namespace Annotator.Application.Services
 
             try
             {
-                var response = await searchUrl.PostStringAsync("");
+                var response = await searchUrl.GetAsync();
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
                 requestResult.HttpStatusCode = response.StatusCode;
@@ -39,7 +43,17 @@ namespace Annotator.Application.Services
                 }
                 else
                 {
-                    //get dto
+                    var annotations = new List<TextAnnotationDTO>();
+                    string jsonLd = await response.Content.ReadAsStringAsync();
+
+                    JObject jsonDocument = JObject.Parse(jsonLd);
+                    var annotationTokens = jsonDocument["first"]["items"].Children();
+                    foreach (var annotationToken in annotationTokens)
+                    {
+                        annotations.Add(new TextAnnotationDTO().MapFromJsonLd(annotationToken.ToString()));
+                    }
+
+                    requestResult.Data = annotations;
                 }
             }
             catch (Exception e)
@@ -50,20 +64,20 @@ namespace Annotator.Application.Services
             }
 
             return requestResult;
-            
+
         }
 
         public async Task<HttpRequestResult<TextAnnotationDTO>> GetAsync(string id)
         {
             //200
             var request = getAnnotationUrl(id)
-                .WithHeader("Accept","application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
+                .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             var repsonse = await request.GetAsync();
             var requestResult = new HttpRequestResult<TextAnnotationDTO>();
 
             try
             {
-                var response = await request.PostStringAsync("");
+                var response = await request.GetAsync();
 
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
@@ -75,7 +89,8 @@ namespace Annotator.Application.Services
                 }
                 else
                 {
-                    //get dto
+                    string jsonLd = await response.Content.ReadAsStringAsync();
+                    requestResult.Data = new TextAnnotationDTO().MapFromJsonLd(jsonLd);
                 }
             }
             catch (Exception e)
@@ -93,14 +108,14 @@ namespace Annotator.Application.Services
             //201
 
             var request = getAnnotationUrl(annotation.id)
-                .WithHeader("Accept","application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
+                .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("Content-Type", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("If-Match", "797c2ee5253966de8882f496c25dd823");
             var requestResult = new HttpRequestResult<string>();
 
             try
             {
-                var response = await request.PostStringAsync("");
+                var response = await request.PostStringAsync(annotation.ToJsonLd());
 
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
@@ -112,7 +127,8 @@ namespace Annotator.Application.Services
                 }
                 else
                 {
-                    //get id
+                    //id is empty
+                    requestResult.Data = getEndpointUrl(annotation.id);
                 }
             }
             catch (Exception e)
@@ -127,17 +143,16 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<string>> UpdateAsync(TextAnnotationDTO annotation)
         {
-            //200
 
             var request = getAnnotationUrl(annotation.id)
-                .WithHeader("Accept","application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
+                .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("Content-Type", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("If-Match", "797c2ee5253966de8882f496c25dd823");
             var requestResult = new HttpRequestResult<string>();
 
             try
             {
-                var response = await request.PutStringAsync("");
+                var response = await request.PutStringAsync(annotation.ToJsonLd());
 
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
@@ -149,7 +164,7 @@ namespace Annotator.Application.Services
                 }
                 else
                 {
-                    //get id
+                    requestResult.Data = getEndpointUrl(annotation.id);
                 }
             }
             catch (Exception e)
@@ -170,7 +185,7 @@ namespace Annotator.Application.Services
 
             try
             {
-               var response = await request.DeleteAsync();
+                var response = await request.DeleteAsync();
                 requestResult.Data = "";
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
@@ -186,6 +201,15 @@ namespace Annotator.Application.Services
             return requestResult;
         }
 
+        private Url getEndpointUrl(string id)
+        {
+            var request = _annotationApiConfig.url
+                .AppendPathSegment("/api/")
+                .AppendPathSegment("Annotations")
+                .AppendPathSegment(id);
+
+            return request;
+        }
 
         private Url getAnnotationUrl(string id)
         {
