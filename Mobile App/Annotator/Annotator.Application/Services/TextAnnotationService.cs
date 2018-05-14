@@ -142,6 +142,8 @@ namespace Annotator.Application.Services
                 var annotationTobeUpdated = await GetAsync(annotation.id);
                 annotationTobeUpdated.Data.text = annotation.text;
                 annotationTobeUpdated.Data.updated = DateTime.Now;
+                annotationTobeUpdated.Data.id = GetAnnotationUrl(annotationTobeUpdated.Data.id);
+
                 var response = await request.PutStringAsync(annotationTobeUpdated.Data.ToJsonLd());
 
                 requestResult.ErrorMessage = "";
@@ -215,7 +217,7 @@ namespace Annotator.Application.Services
                 .AppendPathSegment("services")
                 .AppendPathSegment("search")
                 .AppendPathSegment("target")
-                .SetQueryParams(new { fields = "id", value = referer, strict = "false" });
+                .SetQueryParams(new { fields = "source", value = referer, strict = "false" });
 
             return request;
         }
