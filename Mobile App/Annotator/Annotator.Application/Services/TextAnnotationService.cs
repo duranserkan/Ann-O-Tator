@@ -3,21 +3,18 @@ using Annotator.Domain.Models.Service;
 using Annotator.Domain.Services;
 using Flurl;
 using Flurl.Http;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Annotator.Common.ExtensionMethods;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Annotator.Application.Services
 {
     public class TextAnnotationService : ITextAnnotationService
     {
-        private AnnotationServerConfig _annotationServerConfig;
-        private AnnotationApiConfig _annotationApiConfig;
+        private readonly AnnotationServerConfig _annotationServerConfig;
+        private readonly AnnotationApiConfig _annotationApiConfig;
 
         public TextAnnotationService(AnnotationServerConfig annotationServerConfig, AnnotationApiConfig annotationApiConfig)
         {
@@ -27,8 +24,7 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<List<TextAnnotationDTO>>> GetAnnotationsAsync(string referer)
         {
-            //200
-            var searchUrl = getSearchUrl(referer);
+            var searchUrl = GetSearchUrl(referer);
             var requestResult = new HttpRequestResult<List<TextAnnotationDTO>>();
 
             try
@@ -44,9 +40,9 @@ namespace Annotator.Application.Services
                 else
                 {
                     var annotations = new List<TextAnnotationDTO>();
-                    string jsonLd = await response.Content.ReadAsStringAsync();
+                    var jsonLd = await response.Content.ReadAsStringAsync();
 
-                    JObject jsonDocument = JObject.Parse(jsonLd);
+                    var jsonDocument = JObject.Parse(jsonLd);
                     var annotationTokens = jsonDocument["first"]["items"].Children();
                     foreach (var annotationToken in annotationTokens)
                     {
@@ -69,10 +65,8 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<TextAnnotationDTO>> GetAsync(string id)
         {
-            //200
-            var request = getAnnotationUrl(id)
+            var request = GetAnnotationUrl(id)
                 .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
-            var repsonse = await request.GetAsync();
             var requestResult = new HttpRequestResult<TextAnnotationDTO>();
 
             try
@@ -89,7 +83,7 @@ namespace Annotator.Application.Services
                 }
                 else
                 {
-                    string jsonLd = await response.Content.ReadAsStringAsync();
+                    var jsonLd = await response.Content.ReadAsStringAsync();
                     requestResult.Data = new TextAnnotationDTO().MapFromJsonLd(jsonLd);
                 }
             }
@@ -105,9 +99,7 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<string>> CreateAsync(TextAnnotationDTO annotation)
         {
-            //201
-
-            var request = getAnnotationUrl(annotation.id)
+            var request = GetAnnotationUrl(annotation.id)
                 .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("Content-Type", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("If-Match", "797c2ee5253966de8882f496c25dd823");
@@ -116,20 +108,14 @@ namespace Annotator.Application.Services
             try
             {
                 var response = await request.PostStringAsync(annotation.ToJsonLd());
-
+                var responseContent = await response.Content.ReadAsStringAsync();
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
                 requestResult.HttpStatusCode = response.StatusCode;
 
-                if (requestResult.HttpStatusCode != HttpStatusCode.Created)
-                {
-                    requestResult.Data = null;
-                }
-                else
-                {
-                    //id is empty
-                    requestResult.Data = getEndpointUrl(annotation.id);
-                }
+                var annotationId = JObject.Parse(responseContent)["id"].ToString();
+
+                requestResult.Data = requestResult.HttpStatusCode != HttpStatusCode.Created ? null : GetEndpointUrl(annotationId);
             }
             catch (Exception e)
             {
@@ -143,8 +129,7 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<string>> UpdateAsync(TextAnnotationDTO annotation)
         {
-
-            var request = getAnnotationUrl(annotation.id)
+            var request = GetAnnotationUrl(annotation.id)
                 .WithHeader("Accept", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("Content-Type", "application/ld+json; profile=\"http://www.w3.org/ns/anno.jsonld\"");
             request.WithHeader("If-Match", "797c2ee5253966de8882f496c25dd823");
@@ -152,20 +137,16 @@ namespace Annotator.Application.Services
 
             try
             {
-                var response = await request.PutStringAsync(annotation.ToJsonLd());
+                var annotationTobeUpdated = await GetAsync(annotation.id);
+                annotationTobeUpdated.Data.quote = annotation.quote;
+
+                var response = await request.PutStringAsync(annotationTobeUpdated.Data.ToJsonLd());
 
                 requestResult.ErrorMessage = "";
                 requestResult.HasError = false;
                 requestResult.HttpStatusCode = response.StatusCode;
 
-                if (requestResult.HttpStatusCode != HttpStatusCode.OK)
-                {
-                    requestResult.Data = null;
-                }
-                else
-                {
-                    requestResult.Data = getEndpointUrl(annotation.id);
-                }
+                requestResult.Data = requestResult.HttpStatusCode != HttpStatusCode.OK ? null : GetEndpointUrl(annotation.id);
             }
             catch (Exception e)
             {
@@ -179,7 +160,7 @@ namespace Annotator.Application.Services
 
         public async Task<HttpRequestResult<string>> DeleteAsync(string id)
         {
-            var request = getAnnotationUrl(id)
+            var request = GetAnnotationUrl(id)
                 .WithHeader("If-Match", "24d535a13f2c16e2701bf46b11407cea");
             var requestResult = new HttpRequestResult<string>();
 
@@ -201,7 +182,7 @@ namespace Annotator.Application.Services
             return requestResult;
         }
 
-        private Url getEndpointUrl(string id)
+        private Url GetEndpointUrl(string id)
         {
             var request = _annotationApiConfig.url
                 .AppendPathSegment("/api/")
@@ -211,7 +192,7 @@ namespace Annotator.Application.Services
             return request;
         }
 
-        private Url getAnnotationUrl(string id)
+        private Url GetAnnotationUrl(string id)
         {
             var request = _annotationServerConfig.ServerUrl
                 .AppendPathSegment("/w3c/")
@@ -221,7 +202,7 @@ namespace Annotator.Application.Services
             return request;
         }
 
-        private Url getSearchUrl(string referer)
+        private Url GetSearchUrl(string referer)
         {
             var request = _annotationServerConfig.ServerUrl
                 .AppendPathSegment("/w3c/")
