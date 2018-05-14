@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Annotator.Domain.Models.Service
@@ -44,7 +46,8 @@ namespace Annotator.Domain.Models.Service
             generator.Add("generator", generator);
 
             var body = new JObject();
-            body.Add("bodyValue", text);
+            body.Add("type", "TextualBody");
+            body.Add("value", text);
             annotation.Add("body", body);
 
             var target = new JObject();
@@ -80,20 +83,20 @@ namespace Annotator.Domain.Models.Service
             target.Add("selector", rangeSelector);
             annotation.Add("target", target);
 
-            return annotation.ToString();
+            return annotation.ToString((Formatting.None));
         }
 
         public TextAnnotationDTO MapFromJsonLd(string jsonLd)
         {
             var annotation = JObject.Parse(jsonLd);
-            id = annotation["id"].ToString();
+            id = annotation["id"].ToString().Split('/').Last();
             created = DateTime.Parse(annotation["created"].ToString());
             updated = DateTime.Parse(annotation["modified"].ToString());
-            annotator_schema_version = annotation["generator"]["name"].ToString().Replace("annotator: ", "");
-            text = annotation["bodyValue"].ToString();
-            uri = new Uri(annotation["source"].ToString());
+            annotator_schema_version = "v1.0";
+            text = annotation["body"]["value"].ToString();
+            uri = new Uri(annotation["target"]["source"].ToString());
 
-            var rangeSelector = annotation["selector"];
+            var rangeSelector = annotation["target"]["selector"];
             var startSelector = rangeSelector["startSelector"];
             var endSelector = rangeSelector["endSelector"];
             var textPositionSelector = rangeSelector["refinedBy"];

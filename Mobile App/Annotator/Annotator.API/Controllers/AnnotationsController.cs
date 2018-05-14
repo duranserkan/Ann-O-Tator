@@ -1,4 +1,5 @@
-﻿using Annotator.API.ActionResults;
+﻿using System;
+using Annotator.API.ActionResults;
 using Annotator.API.Configuration;
 using Annotator.Domain.Models.Service;
 using Annotator.Domain.Services;
@@ -41,7 +42,7 @@ namespace Annotator.API.Controllers
                 return new StatusCodeResult(500);
             }
 
-            return new StatusCodeResult((int) result.HttpStatusCode);
+            return new StatusCodeResult((int)result.HttpStatusCode);
         }
 
         [HttpGet("{id}")]
@@ -59,12 +60,13 @@ namespace Annotator.API.Controllers
                 return new StatusCodeResult(500);
             }
 
-            return new StatusCodeResult((int) result.HttpStatusCode);
+            return new StatusCodeResult((int)result.HttpStatusCode);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]TextAnnotationDTO annotation)
         {
+            annotation.uri = new Uri(getReferer());
             var result = await _textAnnotationService.CreateAsync(annotation);
 
             if (result.HttpStatusCode == HttpStatusCode.Created)
@@ -77,7 +79,7 @@ namespace Annotator.API.Controllers
                 return new StatusCodeResult(500);
             }
 
-            return new StatusCodeResult((int) result.HttpStatusCode);
+            return new StatusCodeResult((int)result.HttpStatusCode);
         }
 
         [HttpPut("{id}")]
@@ -94,7 +96,7 @@ namespace Annotator.API.Controllers
                 return new StatusCodeResult(500);
             }
 
-            return new StatusCodeResult((int) result.HttpStatusCode);
+            return new StatusCodeResult((int)result.HttpStatusCode);
         }
 
         // DELETE api/values/5
@@ -113,7 +115,7 @@ namespace Annotator.API.Controllers
                 return new StatusCodeResult(500);
             }
 
-            return new StatusCodeResult((int) result.HttpStatusCode);
+            return new StatusCodeResult((int)result.HttpStatusCode);
         }
 
         private string getReferer()
